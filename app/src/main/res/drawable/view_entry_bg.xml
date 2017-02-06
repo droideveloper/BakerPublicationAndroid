@@ -16,6 +16,16 @@
  * limitations under the License.
  */
  -->
-<resources>
-  <color name="colorRecyclerBackground">#D9D9D9</color>
-</resources>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+  <item>
+    <shape android:shape="rectangle">
+      <stroke android:color="@color/colorPrimaryText" android:width="1dp" />
+      <solid android:color="@android:color/white" />
+    </shape>
+  </item>
+  <item android:bottom="1dp">
+    <shape android:shape="rectangle">
+      <solid android:color="@android:color/white" />
+    </shape>
+  </item>
+</layer-list>

@@ -1,0 +1,29 @@
+#
+# generated on 2017/02/06 10:08:45
+#
+# --table-start--
+dataClass=org.fs.magazine.entities.BakerMagazine
+tableName=bakermagazine
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=localStorage
+# --field-end--
+# --field-start--
+fieldName=localSize
+# --field-end--
+# --field-start--
+fieldName=remoteSize
+# --field-end--
+# --field-start--
+fieldName=createdAt
+# --field-end--
+# --field-start--
+fieldName=updatedAt
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################

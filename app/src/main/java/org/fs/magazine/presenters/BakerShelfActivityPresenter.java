@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
 /*
  * BakerPublicationAndroid Copyright (C) 2017 Fatih.
- *
+ *  
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- -->
-<resources>
-  <color name="colorRecyclerBackground">#D9D9D9</color>
-</resources>
+package org.fs.magazine.presenters;
+
+import org.fs.common.IPresenter;
+
+public interface BakerShelfActivityPresenter extends IPresenter {
+
+}

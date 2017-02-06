@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
 /*
  * BakerPublicationAndroid Copyright (C) 2017 Fatih.
- *
+ *  
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- -->
-<resources>
-  <color name="colorRecyclerBackground">#D9D9D9</color>
-</resources>
+package org.fs.magazine.commons.components;
+
+import dagger.Component;
+import org.fs.magazine.commons.modules.ActivityCompatModule;
+import org.fs.magazine.views.BakerShelfActivity;
+import org.fs.publication.commons.scopes.PerActivity;
+
+@PerActivity
+@Component(dependencies = AppComponent.class, modules = ActivityCompatModule.class)
+public interface ActivityCompatComponent {
+  void inject(BakerShelfActivity activity);
+}

@@ -22,7 +22,6 @@ android {
     }
   }
 
-
   lintOptions {
     abortOnError false
   }
@@ -42,6 +41,8 @@ dependencies {
   testCompile 'junit:junit:4.12'
 
   compile project(':core')
+  compile project(':evoke')
+  compile project(':library')
 
   apt 'com.google.dagger:dagger-compiler:2.7'
   compile 'com.google.dagger:dagger:2.7'
