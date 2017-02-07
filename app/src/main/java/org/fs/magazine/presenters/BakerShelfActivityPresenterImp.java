@@ -79,6 +79,7 @@ public class BakerShelfActivityPresenterImp extends AbstractPresenter<BakerShelf
         final Book book = event.book();
         // start action
         if (event.action().equals(BookChange.Action.START)) {
+
           final NetworkJob job = new NetworkJob.Builder()
             .fileName(String.format(Locale.ENGLISH, "%s.hpub", book.name()))
             .url(book.url())

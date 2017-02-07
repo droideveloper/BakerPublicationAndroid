@@ -121,8 +121,10 @@ public class BookViewHolder extends AbstractRecyclerViewHolder<Book>  {
     File file = new File(directory(), hpub());
     if (file.exists()) {
       action.setText(R.string.view_action);
+      percentage.setProgress(100);
       delete.setVisibility(View.VISIBLE);
     } else {
+      percentage.setProgress(0);
       delete.setVisibility(View.GONE);
     }
   }
@@ -144,6 +146,6 @@ public class BookViewHolder extends AbstractRecyclerViewHolder<Book>  {
   }
 
   private String hpub() {
-    return String.format(Locale.ENGLISH, "%s.hpub", data.name());
+    return String.format(Locale.ENGLISH, "%s/book.json", data.name());
   }
 }

@@ -23,9 +23,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java8.util.Optional;
+import java8.util.stream.StreamSupport;
 import org.fs.common.AbstractManager;
 import org.fs.magazine.BuildConfig;
 import org.fs.publication.entities.Configuration;
@@ -38,6 +41,9 @@ public final class BakerFileImp extends AbstractManager implements BakerFile {
 
   private final static String IGNORE    = ".";
   private final static String IGNORE2   = "_";
+
+  private final static String INDEX     = "index.html";
+  private final static String INDEX2    = "index.htm";
 
   private final static int BUFFER_SIZE  = 8192;
 
@@ -60,10 +66,12 @@ public final class BakerFileImp extends AbstractManager implements BakerFile {
         .map(f -> {
           File json = new File(f, JSON);
           if (json.exists()) {
-            return read(f, JSON);
+            Configuration config = read(f, JSON);
+            return loadIfIndexExists(f, config);
           }
           unzip(f, file);
-          return read(f, JSON);
+          Configuration config = read(f, JSON);
+          return loadIfIndexExists(f, config);
         });
   }
 
@@ -73,6 +81,16 @@ public final class BakerFileImp extends AbstractManager implements BakerFile {
 
   @Override protected boolean isLogEnabled() {
     return BuildConfig.DEBUG;
+  }
+
+  private Configuration loadIfIndexExists(File f, Configuration config) {
+    if (config != null) {
+      Optional<String> index = StreamSupport.stream(Arrays.asList(f.list()))
+          .filter(str -> str.startsWith(INDEX) || str.startsWith(INDEX2))
+          .findFirst();
+      config.index(index.get());
+    }
+    return config;
   }
 
   private Configuration read(File f, String json) {
