@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
@@ -88,7 +89,16 @@ public final class BakerFileImp extends AbstractManager implements BakerFile {
       Optional<String> index = StreamSupport.stream(Arrays.asList(f.list()))
           .filter(str -> str.startsWith(INDEX) || str.startsWith(INDEX2))
           .findFirst();
-      config.index(index.get());
+      // index is not null
+      if (index.get() != null) {
+        File i = new File(f, index.get());
+        config.index(i.toURI().toString());
+      }
+      // append content in root
+      ArrayList<String> contents = config.contents();
+      for (int j = 0, z = contents.size(); j < z; j++) {
+        contents.set(j, new File(f, contents.get(j)).toURI().toString());
+      }
     }
     return config;
   }
@@ -151,16 +161,6 @@ public final class BakerFileImp extends AbstractManager implements BakerFile {
       }
     } catch (IOException error) {
       log(error);
-    }
-  }
-
-  private boolean isValidFile(File f) {
-    try {
-      f.getCanonicalPath();
-      return true;
-    } catch (IOException error) {
-      log(error);
-      return false;
     }
   }
 }

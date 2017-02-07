@@ -15,6 +15,7 @@
  */
 package org.fs.magazine.presenters;
 
+import android.content.Intent;
 import java.io.File;
 import java.util.Locale;
 import org.fs.common.AbstractPresenter;
@@ -29,6 +30,7 @@ import org.fs.magazine.entities.events.BookChange;
 import org.fs.magazine.entities.events.PercentageChange;
 import org.fs.magazine.views.BakerShelfActivityView;
 import org.fs.publication.entities.Book;
+import org.fs.publication.views.ReadActivity;
 import org.fs.util.Collections;
 import org.fs.util.ObservableList;
 import rx.Subscription;
@@ -90,15 +92,9 @@ public class BakerShelfActivityPresenterImp extends AbstractPresenter<BakerShelf
           final DownloadManager.SimpleJobListener callback = new DownloadManager.SimpleJobListener() {
             @Override public void onComplete(File f) {
               file.extract(f, book.name())
-                  .observeOn(AndroidSchedulers.mainThread())
-                  .subscribeOn(Schedulers.io())
-                  .subscribe(configuration -> {
-                    if (configuration != null) {
-                      for(String str : configuration.contents()) {
-                        log(str);
-                      }
-                    }
-                  });
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(configuration -> {});
               int index = data.indexOf((d) -> d.url().equalsIgnoreCase(book.url()));
               if (index != -1) {
                 data.set(index, book);
@@ -109,8 +105,18 @@ public class BakerShelfActivityPresenterImp extends AbstractPresenter<BakerShelf
               BusManager.send(new PercentageChange(book, percentage));
             }
           };
-
-          long id = DownloadManager.schedule(job, callback);
+          DownloadManager.schedule(job, callback);
+        } else if (event.action().equals(BookChange.Action.VIEW)) {
+          file.extract(null, book.name())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io())
+            .subscribe(configuration -> {
+              if (view.isAvailable()) {
+                Intent intent = new Intent(view.getContext(), ReadActivity.class);
+                intent.putExtra("key.configuration.object", configuration);
+                view.startActivity(intent);
+              }
+            });
         }
       }
     });
@@ -118,6 +124,10 @@ public class BakerShelfActivityPresenterImp extends AbstractPresenter<BakerShelf
 
   @Override public void onStop() {
     DownloadManager.unregister(view.getContext());
+    if (register != null) {
+      BusManager.remove(register);
+      register = null;
+    }
   }
 
   @Override protected String getClassTag() {

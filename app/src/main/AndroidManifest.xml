@@ -27,6 +27,9 @@
 
     </activity>
 
+    <activity
+      android:name="org.fs.publication.views.ReadActivity"
+      android:screenOrientation="portrait" />
 
     <service android:name="org.fs.evoke.DownloadService"
       android:exported="false">
