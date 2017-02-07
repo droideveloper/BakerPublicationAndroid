@@ -107,12 +107,16 @@ public class BookViewHolder extends AbstractRecyclerViewHolder<Book>  {
   }
 
   @Override public final void onBindView(Book data) {
-    this.data = data;
     // glide loader
-    Glide.with(itemView.getContext())
+    if(this.data != data) {
+      this.data = data;
+
+      Glide.with(itemView.getContext())
         .load(data.cover())
+        .placeholder(R.drawable.cover)
         .crossFade()
         .into(cover);
+    }
 
     title.setText(data.title());
     date.setText(serializer.format(data.date()));

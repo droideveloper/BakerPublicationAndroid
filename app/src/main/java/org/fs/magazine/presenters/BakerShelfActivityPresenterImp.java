@@ -23,11 +23,13 @@ import org.fs.common.BusManager;
 import org.fs.evoke.DownloadManager;
 import org.fs.evoke.NetworkJob;
 import org.fs.magazine.BuildConfig;
+import org.fs.magazine.R;
 import org.fs.magazine.commons.BakerFile;
 import org.fs.magazine.commons.BakerService;
 import org.fs.magazine.commons.BakerStorage;
 import org.fs.magazine.entities.events.BookChange;
 import org.fs.magazine.entities.events.PercentageChange;
+import org.fs.magazine.entities.events.TextChange;
 import org.fs.magazine.views.BakerShelfActivityView;
 import org.fs.publication.entities.Book;
 import org.fs.publication.views.ReadActivity;
@@ -105,7 +107,10 @@ public class BakerShelfActivityPresenterImp extends AbstractPresenter<BakerShelf
               BusManager.send(new PercentageChange(book, percentage));
             }
           };
+
           DownloadManager.schedule(job, callback);
+          BusManager.send(new TextChange(R.string.stop_action, book));
+
         } else if (event.action().equals(BookChange.Action.VIEW)) {
           file.extract(null, book.name())
             .observeOn(AndroidSchedulers.mainThread())
