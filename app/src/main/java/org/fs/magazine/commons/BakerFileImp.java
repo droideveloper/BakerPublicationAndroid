@@ -90,7 +90,7 @@ public final class BakerFileImp extends AbstractManager implements BakerFile {
           .filter(str -> str.startsWith(INDEX) || str.startsWith(INDEX2))
           .findFirst();
       // index is not null
-      if (index.get() != null) {
+      if (index.isPresent()) {
         File i = new File(f, index.get());
         config.index(i.toURI().toString());
       }
