@@ -15,15 +15,23 @@
  */
 package org.fs.magazine.presenters;
 
+import java.io.File;
+import java.util.Locale;
 import org.fs.common.AbstractPresenter;
+import org.fs.common.BusManager;
+import org.fs.evoke.DownloadManager;
+import org.fs.evoke.NetworkJob;
 import org.fs.magazine.BuildConfig;
 import org.fs.magazine.commons.BakerFile;
 import org.fs.magazine.commons.BakerService;
 import org.fs.magazine.commons.BakerStorage;
+import org.fs.magazine.entities.events.BookChange;
+import org.fs.magazine.entities.events.PercentageChange;
 import org.fs.magazine.views.BakerShelfActivityView;
 import org.fs.publication.entities.Book;
 import org.fs.util.Collections;
 import org.fs.util.ObservableList;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -34,6 +42,8 @@ public class BakerShelfActivityPresenterImp extends AbstractPresenter<BakerShelf
   private final BakerFile file;
   private final BakerService service;
   private final BakerStorage storage;
+
+  private Subscription register;
 
   public BakerShelfActivityPresenterImp(BakerShelfActivityView view, ObservableList<Book> data, BakerFile file, BakerService service, BakerStorage storage) {
     super(view);
@@ -59,7 +69,54 @@ public class BakerShelfActivityPresenterImp extends AbstractPresenter<BakerShelf
             view.hideProgress();
           }
         }, this::log);
+    } else {
+      view.hideProgress();
     }
+    DownloadManager.register(view.getContext());
+    register = BusManager.add((evt) -> {
+      if (evt instanceof BookChange) {
+        BookChange event = (BookChange) evt;
+        final Book book = event.book();
+        // start action
+        if (event.action().equals(BookChange.Action.START)) {
+          final NetworkJob job = new NetworkJob.Builder()
+            .fileName(String.format(Locale.ENGLISH, "%s.hpub", book.name()))
+            .url(book.url())
+            .type(NetworkJob.ConnectionType.UNSPECIFIED)
+            .policy(NetworkJob.Policy.DELETE_ON_ERROR)
+            .build();
+
+          final DownloadManager.SimpleJobListener callback = new DownloadManager.SimpleJobListener() {
+            @Override public void onComplete(File f) {
+              file.extract(f, book.name())
+                  .observeOn(AndroidSchedulers.mainThread())
+                  .subscribeOn(Schedulers.io())
+                  .subscribe(configuration -> {
+                    if (configuration != null) {
+                      for(String str : configuration.contents()) {
+                        log(str);
+                      }
+                    }
+                  });
+              int index = data.indexOf((d) -> d.url().equalsIgnoreCase(book.url()));
+              if (index != -1) {
+                data.set(index, book);
+              }
+            }
+
+            @Override public void onProgress(int percentage) {
+              BusManager.send(new PercentageChange(book, percentage));
+            }
+          };
+
+          long id = DownloadManager.schedule(job, callback);
+        }
+      }
+    });
+  }
+
+  @Override public void onStop() {
+    DownloadManager.unregister(view.getContext());
   }
 
   @Override protected String getClassTag() {

@@ -36,6 +36,14 @@ public class BookRecyclerAdapter extends AbstractRecyclerAdapter<Book, BookViewH
     dataSet.registerPropertyChangedListener(this);
   }
 
+  @Override public void onViewAttachedToWindow(BookViewHolder holder) {
+    holder.attach();
+  }
+
+  @Override public void onViewDetachedFromWindow(BookViewHolder holder) {
+    holder.detach();
+  }
+
   @Override public BookViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     final LayoutInflater factory = inflaterFactory();
     if (factory != null) {

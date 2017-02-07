@@ -34,6 +34,11 @@ import rx.Observable;
 public final class BakerFileImp extends AbstractManager implements BakerFile {
 
   private final static String DIRECTORY = "baker";
+  private final static String JSON      = "book.json";
+
+  private final static String IGNORE    = ".";
+  private final static String IGNORE2   = "_";
+
   private final static int BUFFER_SIZE  = 8192;
 
   private final File directory;
@@ -53,11 +58,12 @@ public final class BakerFileImp extends AbstractManager implements BakerFile {
   @Override public Observable<Configuration> extract(File file, String name) {
     return Observable.just(new File(directory, name))
         .map(f -> {
-          if (f.exists()) {
-            return read(f, "book.json");
+          File json = new File(f, JSON);
+          if (json.exists()) {
+            return read(f, JSON);
           }
           unzip(f, file);
-          return read(f, "book.json");
+          return read(f, JSON);
         });
   }
 
@@ -81,38 +87,62 @@ public final class BakerFileImp extends AbstractManager implements BakerFile {
       }
       stream.close();
       return serializer.fromJson(str.toString(), Configuration.class);
-    } catch (IOException e) {
+    } catch (IOException error) {
+      log(error);
       return null;
     }
   }
 
   private void unzip(File directory, File zip) {
     try {
+      if (!directory.exists()) {
+        directory.mkdirs();
+      }
       ZipInputStream stream = new ZipInputStream(new FileInputStream(zip));
       try {
         byte[] buffer = new byte[BUFFER_SIZE];
         ZipEntry entry;
         while ((entry = stream.getNextEntry()) != null) {
+          final String str = entry.getName();
           File file = new File(directory, entry.getName());
-          File fileDirectory = new File(file.getParent());
-          if (!fileDirectory.exists()) {
-            boolean created = fileDirectory.mkdirs();
-            log(Log.INFO, String.format(Locale.ENGLISH, "%s is created, %s.", fileDirectory.getAbsolutePath(),
-                created));
+          boolean ignore = str.startsWith(IGNORE2) ||str.startsWith(IGNORE);
+          if (!ignore) {
+            if (entry.isDirectory()) {
+              // directory created
+              if (!file.exists()) {
+                file.mkdirs();
+              }
+            } else {
+              // file created
+              FileOutputStream out = new FileOutputStream(file);
+              int cursor;
+              while ((cursor = stream.read(buffer)) != -1) {
+                out.write(buffer, 0, cursor);
+              }
+              out.close();
+            }
           }
-          FileOutputStream out = new FileOutputStream(file);
-          int cursor;
-          while ((cursor = stream.read(buffer)) != -1) {
-            out.write(buffer, 0, cursor);
-          }
-          out.close();
         }
       } finally {
         try {
           stream.closeEntry();
           stream.close();
-        } catch (IOException ignored) { }
+        } catch (IOException ignored) {
+          log(ignored);
+        }
       }
-    } catch (IOException error) { }
+    } catch (IOException error) {
+      log(error);
+    }
+  }
+
+  private boolean isValidFile(File f) {
+    try {
+      f.getCanonicalPath();
+      return true;
+    } catch (IOException error) {
+      log(error);
+      return false;
+    }
   }
 }
