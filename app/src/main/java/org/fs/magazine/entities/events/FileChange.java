@@ -13,20 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fs.magazine.commons;
+package org.fs.magazine.entities.events;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import org.fs.common.IEvent;
 import org.fs.publication.entities.Book;
-import org.fs.publication.entities.Configuration;
-import rx.Observable;
 
-public interface BakerFile {
+public class FileChange implements IEvent {
 
-  Observable<Configuration> extract(File file, String name);
+  private final Book book;
+  private final File file;
 
-  boolean storageEnough(long expected);
-  File directory();
-  void write(File file, InputStream stream, Book book, long expected) throws IOException;
+  public FileChange(File file, Book book) {
+    this.book = book;
+    this.file = file;
+  }
+
+  public final File file() {
+    return file;
+  }
+
+  public final Book book() {
+    return book;
+  }
 }

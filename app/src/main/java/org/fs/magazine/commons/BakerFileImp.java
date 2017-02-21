@@ -16,6 +16,8 @@
 package org.fs.magazine.commons;
 
 import android.content.Context;
+import android.os.Build;
+import android.os.StatFs;
 import android.util.Log;
 import com.google.gson.Gson;
 import java.io.File;
@@ -31,7 +33,11 @@ import java.util.zip.ZipInputStream;
 import java8.util.Optional;
 import java8.util.stream.StreamSupport;
 import org.fs.common.AbstractManager;
+import org.fs.common.BusManager;
+import org.fs.common.ThreadManager;
 import org.fs.magazine.BuildConfig;
+import org.fs.magazine.entities.events.PercentageChange;
+import org.fs.publication.entities.Book;
 import org.fs.publication.entities.Configuration;
 import rx.Observable;
 
@@ -74,6 +80,38 @@ public final class BakerFileImp extends AbstractManager implements BakerFile {
           Configuration config = read(f, JSON);
           return loadIfIndexExists(f, config);
         });
+  }
+
+  @Override public boolean storageEnough(long expected) {
+    StatFs stats = new StatFs(directory.getPath());
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+      return expected <= (stats.getBlockCountLong() * stats.getBlockSizeLong());
+    } else {
+      return expected <= (stats.getBlockCount() * stats.getBlockSize());
+    }
+  }
+
+  @Override public File directory() {
+    return directory;
+  }
+
+  @Override public void write(File file, InputStream stream, final Book book, long expected) throws IOException {
+    long size = file.length();
+    FileOutputStream out = new FileOutputStream(file, file.exists());
+    try {
+      byte[] buffer = new byte[BUFFER_SIZE];
+      int counter;
+      while ((counter = stream.read(buffer)) != -1) {
+        out.write(buffer, 0, counter);
+        size += counter; // increase buffer position
+        final int percentage = ((int) (size / expected)) * 100;
+        // ensure uiThread
+        ThreadManager.runOnUiThread(() -> BusManager.send(new PercentageChange(book, percentage)));
+      }
+      stream.close();
+    } finally {
+      out.close();
+    }
   }
 
   @Override protected String getClassTag() {

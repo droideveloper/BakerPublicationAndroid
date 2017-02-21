@@ -15,6 +15,7 @@
  */
 package org.fs.magazine.commons.modules;
 
+import com.birbit.android.jobqueue.JobManager;
 import dagger.Module;
 import dagger.Provides;
 import java.util.Locale;
@@ -41,9 +42,9 @@ import org.fs.util.ObservableList;
     this.data = new ObservableList<>();
   }
 
-  @PerActivity @Provides public BakerShelfActivityPresenter bakerShelfActivityPresenter(BakerFile file, BakerService service, BakerStorage storage) {
+  @PerActivity @Provides public BakerShelfActivityPresenter bakerShelfActivityPresenter(BakerFile file, BakerService service, BakerStorage storage, JobManager jobManager) {
     if (view instanceof BakerShelfActivityView) {
-      return new BakerShelfActivityPresenterImp((BakerShelfActivityView) view, data, file, service, storage);
+      return new BakerShelfActivityPresenterImp((BakerShelfActivityView) view, data, file, service, storage, jobManager);
     }
     throw new AndroidException(
         String.format(Locale.ENGLISH,

@@ -31,17 +31,16 @@
       android:name="org.fs.publication.views.ReadActivity"
       android:screenOrientation="portrait" />
 
-    <service android:name="org.fs.evoke.DownloadService"
-      android:exported="false">
+    <service android:name=".services.MagazineJobService"
+      android:permission="android.permission.BIND_JOB_SERVICE" />
+
+    <service
+      android:name=".services.MagazineGCMJobService"
+      android:exported="true"
+      android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE">
 
       <intent-filter>
-        <action android:name="org.fs.evoke.ACTION_START" />
-        <category android:name="org.fs.evoke.CATEGORY_DEFAULT" />
-      </intent-filter>
-
-      <intent-filter>
-        <action android:name="org.fs.evoke.ACTION_STOP" />
-        <category android:name="org.fs.evoke.CATEGORY_DEFAULT" />
+        <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY" />
       </intent-filter>
 
     </service>

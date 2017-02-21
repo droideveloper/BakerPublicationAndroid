@@ -13,20 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fs.magazine.commons;
+package org.fs.magazine.commons.scopes;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import org.fs.publication.entities.Book;
-import org.fs.publication.entities.Configuration;
-import rx.Observable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import javax.inject.Scope;
 
-public interface BakerFile {
-
-  Observable<Configuration> extract(File file, String name);
-
-  boolean storageEnough(long expected);
-  File directory();
-  void write(File file, InputStream stream, Book book, long expected) throws IOException;
-}
+@Scope
+@Retention(RetentionPolicy.RUNTIME)
+public @interface PerService {}

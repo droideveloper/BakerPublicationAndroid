@@ -16,24 +16,24 @@
 package org.fs.magazine.presenters;
 
 import android.content.Intent;
+import com.birbit.android.jobqueue.JobManager;
 import java.io.File;
-import java.util.Locale;
 import org.fs.common.AbstractPresenter;
 import org.fs.common.BusManager;
-import org.fs.evoke.DownloadManager;
-import org.fs.evoke.NetworkJob;
 import org.fs.magazine.BuildConfig;
 import org.fs.magazine.R;
 import org.fs.magazine.commons.BakerFile;
 import org.fs.magazine.commons.BakerService;
 import org.fs.magazine.commons.BakerStorage;
 import org.fs.magazine.entities.events.BookChange;
-import org.fs.magazine.entities.events.PercentageChange;
+import org.fs.magazine.entities.events.FileChange;
 import org.fs.magazine.entities.events.TextChange;
+import org.fs.magazine.tasks.DownloadMagazineJob;
 import org.fs.magazine.views.BakerShelfActivityView;
 import org.fs.publication.entities.Book;
 import org.fs.publication.views.ReadActivity;
 import org.fs.util.Collections;
+import org.fs.util.Objects;
 import org.fs.util.ObservableList;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -46,15 +46,18 @@ public class BakerShelfActivityPresenterImp extends AbstractPresenter<BakerShelf
   private final BakerFile file;
   private final BakerService service;
   private final BakerStorage storage;
+  private final JobManager jobManager;
 
   private Subscription register;
 
-  public BakerShelfActivityPresenterImp(BakerShelfActivityView view, ObservableList<Book> data, BakerFile file, BakerService service, BakerStorage storage) {
+  public BakerShelfActivityPresenterImp(BakerShelfActivityView view, ObservableList<Book> data,
+      BakerFile file, BakerService service, BakerStorage storage, JobManager jobManager) {
     super(view);
     this.data = data;
     this.file = file;
     this.service = service;
     this.storage = storage;
+    this.jobManager = jobManager;
   }
 
   @Override public void onCreate() {
@@ -76,7 +79,6 @@ public class BakerShelfActivityPresenterImp extends AbstractPresenter<BakerShelf
     } else {
       view.hideProgress();
     }
-    DownloadManager.register(view.getContext());
     register = BusManager.add((evt) -> {
       if (evt instanceof BookChange) {
         BookChange event = (BookChange) evt;
@@ -84,34 +86,11 @@ public class BakerShelfActivityPresenterImp extends AbstractPresenter<BakerShelf
         // start action
         if (event.action().equals(BookChange.Action.START)) {
 
-          final NetworkJob job = new NetworkJob.Builder()
-            .fileName(String.format(Locale.ENGLISH, "%s.hpub", book.name()))
-            .url(book.url())
-            .type(NetworkJob.ConnectionType.UNSPECIFIED)
-            .policy(NetworkJob.Policy.DELETE_ON_ERROR)
-            .build();
-
-          final DownloadManager.SimpleJobListener callback = new DownloadManager.SimpleJobListener() {
-            @Override public void onComplete(File f) {
-              file.extract(f, book.name())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(configuration -> {});
-              int index = data.indexOf((d) -> d.url().equalsIgnoreCase(book.url()));
-              if (index != -1) {
-                data.set(index, book);
-              }
-            }
-
-            @Override public void onProgress(int percentage) {
-              BusManager.send(new PercentageChange(book, percentage));
-            }
-          };
-
-          DownloadManager.schedule(job, callback);
+          jobManager.addJobInBackground(new DownloadMagazineJob(book, file));
           BusManager.send(new TextChange(R.string.stop_action, book));
 
         } else if (event.action().equals(BookChange.Action.VIEW)) {
+          // we can add null object like this weird really
           file.extract(null, book.name())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(Schedulers.io())
@@ -123,15 +102,36 @@ public class BakerShelfActivityPresenterImp extends AbstractPresenter<BakerShelf
               }
             });
         }
+      } else if (evt instanceof FileChange) {
+        FileChange fileChange = (FileChange) evt;
+        final File f = fileChange.file();
+        final Book book = fileChange.book();
+        if (Objects.isNullOrEmpty(book) && Objects.isNullOrEmpty(f)) {
+          throw new RuntimeException("file or book object is null");
+        } else {
+          file.extract(f, book.name())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io())
+            .subscribe(configuration -> {});
+          int index = data.indexOf((d) -> d.url().equalsIgnoreCase(book.url()));
+          if (index != -1) {
+            data.set(index, book);
+          }
+        }
       }
     });
   }
 
   @Override public void onStop() {
-    DownloadManager.unregister(view.getContext());
     if (register != null) {
       BusManager.remove(register);
       register = null;
+    }
+  }
+
+  @Override public void onBackPressed() {
+    if (view.isAvailable()) {
+      view.finish();
     }
   }
 

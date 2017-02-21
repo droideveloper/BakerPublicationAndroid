@@ -124,6 +124,11 @@ public class BakerShelfActivity extends AbstractActivity<BakerShelfActivityPrese
     return getString(stringId);
   }
 
+  @Override public void finish() {
+    super.finish();
+    overridePendingTransition(R.anim.scale_in, R.anim.translate_right_out);
+  }
+
   @Override public Context getContext() {
     return this;
   }

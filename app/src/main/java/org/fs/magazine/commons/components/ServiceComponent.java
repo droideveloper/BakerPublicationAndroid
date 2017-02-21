@@ -15,24 +15,14 @@
  */
 package org.fs.magazine.commons.components;
 
-import com.birbit.android.jobqueue.JobManager;
-import com.google.gson.Gson;
 import dagger.Component;
-import javax.inject.Singleton;
-import org.fs.magazine.commons.BakerFile;
-import org.fs.magazine.commons.BakerService;
-import org.fs.magazine.commons.BakerStorage;
-import org.fs.magazine.commons.modules.AppModule;
-import retrofit2.Retrofit;
+import org.fs.magazine.commons.scopes.PerService;
+import org.fs.magazine.services.MagazineGCMJobService;
+import org.fs.magazine.services.MagazineJobService;
 
-@Singleton @Component(modules = AppModule.class)
-public interface AppComponent {
-  // shared for future use
-  Gson serializer();
-  Retrofit retrofit();
-  // services
-  BakerStorage storage();
-  BakerService service();
-  BakerFile file();
-  JobManager jobManager();
+@PerService
+@Component(dependencies = AppComponent.class)
+public interface ServiceComponent {
+  void inject(MagazineGCMJobService service);
+  void inject(MagazineJobService service);
 }

@@ -16,6 +16,13 @@
 package org.fs.magazine.commons.modules;
 
 import android.app.Application;
+import android.os.Build;
+import com.birbit.android.jobqueue.JobManager;
+import com.birbit.android.jobqueue.config.Configuration;
+import com.birbit.android.jobqueue.scheduling.FrameworkJobSchedulerService;
+import com.birbit.android.jobqueue.scheduling.GcmJobSchedulerService;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dagger.Module;
@@ -26,11 +33,18 @@ import org.fs.magazine.commons.BakerFileImp;
 import org.fs.magazine.commons.BakerService;
 import org.fs.magazine.commons.BakerStorage;
 import org.fs.magazine.commons.BakerStorageImp;
+import org.fs.magazine.services.MagazineGCMJobService;
+import org.fs.magazine.services.MagazineJobService;
 import org.fs.net.RxJavaCallAdapterFactory;
 import org.fs.net.converter.GsonConverterFactory;
 import retrofit2.Retrofit;
 
 @Module public class AppModule {
+
+  private final static int MIN_CONSUMER   = 0x01;
+  private final static int MAX_CONSUMER   = 0x03;
+  private final static int LOAD_FACTORY   = 0x03;
+  private final static int MAX_KEEP_ALIVE = 0x78; // 120secs =)
 
   private final Application application;
 
@@ -67,5 +81,25 @@ import retrofit2.Retrofit;
 
   @Singleton @Provides public BakerService bakerService(Retrofit retrofit) {
     return retrofit.create(BakerService.class);
+  }
+
+  @Singleton @Provides public JobManager jobManager() {
+    Configuration.Builder config = new Configuration.Builder(application)
+        .minConsumerCount(MIN_CONSUMER)
+        .maxConsumerCount(MAX_CONSUMER)
+        .loadFactor(LOAD_FACTORY)
+        .consumerKeepAlive(MAX_KEEP_ALIVE);
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+      config.scheduler(FrameworkJobSchedulerService.createSchedulerFor(application,
+          MagazineJobService.class), true);
+    } else {
+      int isGCMAvailable = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(application);
+      if (isGCMAvailable == ConnectionResult.SUCCESS) {
+        config.scheduler(GcmJobSchedulerService.createSchedulerFor(application,
+            MagazineGCMJobService.class), true);
+      }
+    }
+    return new JobManager(config.build());
   }
 }
