@@ -104,8 +104,9 @@ public final class BakerFileImp extends AbstractManager implements BakerFile {
       while ((counter = stream.read(buffer)) != -1) {
         out.write(buffer, 0, counter);
         size += counter; // increase buffer position
-        final int percentage = ((int) (size / expected)) * 100;
+        final int percentage = (int) ((size * 1.0f / expected) * 100);
         // ensure uiThread
+        log(Log.ERROR, String.format(Locale.ENGLISH, "percentage: %d", percentage));
         ThreadManager.runOnUiThread(() -> BusManager.send(new PercentageChange(book, percentage)));
       }
       stream.close();
