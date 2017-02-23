@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.StatFs;
 import android.util.Log;
 import com.google.gson.Gson;
+import io.reactivex.Observable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -39,7 +40,6 @@ import org.fs.magazine.BuildConfig;
 import org.fs.magazine.entities.events.PercentageChange;
 import org.fs.publication.entities.Book;
 import org.fs.publication.entities.Configuration;
-import rx.Observable;
 
 public final class BakerFileImp extends AbstractManager implements BakerFile {
 

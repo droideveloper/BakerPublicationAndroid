@@ -17,6 +17,9 @@ package org.fs.magazine.presenters;
 
 import android.content.Intent;
 import com.birbit.android.jobqueue.JobManager;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import java.io.File;
 import org.fs.common.AbstractPresenter;
 import org.fs.common.BusManager;
@@ -24,7 +27,6 @@ import org.fs.magazine.BuildConfig;
 import org.fs.magazine.R;
 import org.fs.magazine.commons.BakerFile;
 import org.fs.magazine.commons.BakerService;
-import org.fs.magazine.commons.BakerStorage;
 import org.fs.magazine.entities.events.BookChange;
 import org.fs.magazine.entities.events.FileChange;
 import org.fs.magazine.entities.events.TextChange;
@@ -35,9 +37,6 @@ import org.fs.publication.views.ReadActivity;
 import org.fs.util.Collections;
 import org.fs.util.Objects;
 import org.fs.util.ObservableList;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class BakerShelfActivityPresenterImp extends AbstractPresenter<BakerShelfActivityView>
     implements BakerShelfActivityPresenter {
@@ -45,18 +44,16 @@ public class BakerShelfActivityPresenterImp extends AbstractPresenter<BakerShelf
   private final ObservableList<Book> data;
   private final BakerFile file;
   private final BakerService service;
-  private final BakerStorage storage;
   private final JobManager jobManager;
 
-  private Subscription register;
+  private Disposable register;
 
   public BakerShelfActivityPresenterImp(BakerShelfActivityView view, ObservableList<Book> data,
-      BakerFile file, BakerService service, BakerStorage storage, JobManager jobManager) {
+      BakerFile file, BakerService service, JobManager jobManager) {
     super(view);
     this.data = data;
     this.file = file;
     this.service = service;
-    this.storage = storage;
     this.jobManager = jobManager;
   }
 

@@ -19,6 +19,8 @@ import android.content.Context;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import io.reactivex.Observable;
+import io.reactivex.Single;
 import java.sql.SQLException;
 import java.util.List;
 import java8.util.function.Predicate;
@@ -26,7 +28,6 @@ import org.fs.core.AbstractOrmliteHelper;
 import org.fs.magazine.BuildConfig;
 import org.fs.magazine.R;
 import org.fs.magazine.entities.BakerMagazine;
-import rx.Observable;
 
 public final class BakerStorageImp extends AbstractOrmliteHelper implements BakerStorage {
 
@@ -52,10 +53,11 @@ public final class BakerStorageImp extends AbstractOrmliteHelper implements Bake
         .map(RuntimeExceptionDao::queryForAll);
   }
 
-  @Override public Observable<BakerMagazine> firstOrDefault(BakerMagazine defaultValue, Predicate<BakerMagazine> where) {
+  @Override public Single<BakerMagazine> firstOrDefault(BakerMagazine defaultValue, Predicate<BakerMagazine> where) {
     return all()
-        .flatMap(Observable::from)
-        .firstOrDefault(defaultValue, where::test);
+        .flatMap(Observable::fromIterable)
+        .filter(where::test)
+        .first(BakerMagazine.INVALID_ITEM);
   }
 
   @Override public Observable<Boolean> create(BakerMagazine magazine) {

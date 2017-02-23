@@ -35,7 +35,7 @@ import org.fs.magazine.commons.BakerStorage;
 import org.fs.magazine.commons.BakerStorageImp;
 import org.fs.magazine.services.MagazineGCMJobService;
 import org.fs.magazine.services.MagazineJobService;
-import org.fs.net.RxJavaCallAdapterFactory;
+import org.fs.net.RxJava2CallAdapterFactory;
 import org.fs.net.converter.GsonConverterFactory;
 import retrofit2.Retrofit;
 
@@ -66,8 +66,8 @@ import retrofit2.Retrofit;
   @Singleton @Provides public Retrofit retrofit(Gson gson) {
     return new Retrofit.Builder()
       .baseUrl(uri)
-      .addConverterFactory(GsonConverterFactory.createWithGson(gson))
-      .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+      .addConverterFactory(GsonConverterFactory.create(gson))
+      .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
       .build();
   }
 

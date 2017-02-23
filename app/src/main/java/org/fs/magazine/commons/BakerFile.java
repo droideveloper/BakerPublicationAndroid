@@ -15,12 +15,12 @@
  */
 package org.fs.magazine.commons;
 
+import io.reactivex.Observable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import org.fs.publication.entities.Book;
 import org.fs.publication.entities.Configuration;
-import rx.Observable;
 
 public interface BakerFile {
 

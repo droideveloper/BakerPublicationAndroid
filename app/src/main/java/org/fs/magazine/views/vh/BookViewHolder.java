@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
+import io.reactivex.disposables.Disposable;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -33,7 +34,6 @@ import org.fs.magazine.entities.events.BookChange;
 import org.fs.magazine.entities.events.PercentageChange;
 import org.fs.magazine.entities.events.TextChange;
 import org.fs.publication.entities.Book;
-import rx.Subscription;
 
 import static org.fs.util.ViewUtility.findViewById;
 
@@ -52,7 +52,7 @@ public class BookViewHolder extends AbstractRecyclerViewHolder<Book>  {
   private Button      action;
   private Button      delete;
 
-  private Subscription register;
+  private Disposable register;
 
   public BookViewHolder(View view) {
     super(view);

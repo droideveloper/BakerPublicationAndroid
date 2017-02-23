@@ -16,6 +16,7 @@
 package org.fs.magazine.views.adapter;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,15 @@ public class BookRecyclerAdapter extends AbstractRecyclerAdapter<Book, BookViewH
   public BookRecyclerAdapter(ObservableList<Book> dataSet, Context context) {
     super(dataSet, context);
     dataSet.registerPropertyChangedListener(this);
+  }
+
+  @Override public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+    super.onDetachedFromRecyclerView(recyclerView);
+    if (dataSet instanceof ObservableList<?>) {
+      // if we detached from it we no longer need this.
+      ObservableList<?> observer = (ObservableList<?>) dataSet;
+      observer.unregisterPropertyChangedListener(this);
+    }
   }
 
   @Override public void onViewAttachedToWindow(BookViewHolder holder) {

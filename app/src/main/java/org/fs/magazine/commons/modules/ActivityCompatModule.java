@@ -23,7 +23,6 @@ import org.fs.common.IView;
 import org.fs.exception.AndroidException;
 import org.fs.magazine.commons.BakerFile;
 import org.fs.magazine.commons.BakerService;
-import org.fs.magazine.commons.BakerStorage;
 import org.fs.magazine.presenters.BakerShelfActivityPresenter;
 import org.fs.magazine.presenters.BakerShelfActivityPresenterImp;
 import org.fs.magazine.views.BakerShelfActivityView;
@@ -42,9 +41,9 @@ import org.fs.util.ObservableList;
     this.data = new ObservableList<>();
   }
 
-  @PerActivity @Provides public BakerShelfActivityPresenter bakerShelfActivityPresenter(BakerFile file, BakerService service, BakerStorage storage, JobManager jobManager) {
+  @PerActivity @Provides public BakerShelfActivityPresenter bakerShelfActivityPresenter(BakerFile file, BakerService service, JobManager jobManager) {
     if (view instanceof BakerShelfActivityView) {
-      return new BakerShelfActivityPresenterImp((BakerShelfActivityView) view, data, file, service, storage, jobManager);
+      return new BakerShelfActivityPresenterImp((BakerShelfActivityView) view, data, file, service, jobManager);
     }
     throw new AndroidException(
         String.format(Locale.ENGLISH,

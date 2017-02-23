@@ -32,6 +32,8 @@ import org.fs.util.Objects;
   @DatabaseField private Date   createdAt;
   @DatabaseField private Date   updatedAt;
 
+  public final static BakerMagazine INVALID_ITEM = new BakerMagazine(null, null, Long.MIN_VALUE, Long.MIN_VALUE, null, null);
+
   public BakerMagazine() {/*default constructor*/}
 
   private BakerMagazine(Parcel input) {

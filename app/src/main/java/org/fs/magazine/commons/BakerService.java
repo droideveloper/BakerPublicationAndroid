@@ -15,10 +15,10 @@
  */
 package org.fs.magazine.commons;
 
+import io.reactivex.Observable;
 import java.util.List;
 import org.fs.publication.entities.Book;
 import retrofit2.http.GET;
-import rx.Observable;
 
 public interface BakerService {
 

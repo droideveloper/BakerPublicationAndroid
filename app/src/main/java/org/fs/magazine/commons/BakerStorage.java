@@ -15,15 +15,16 @@
  */
 package org.fs.magazine.commons;
 
+import io.reactivex.Observable;
+import io.reactivex.Single;
 import java.util.List;
 import java8.util.function.Predicate;
 import org.fs.magazine.entities.BakerMagazine;
-import rx.Observable;
 
 public interface BakerStorage {
 
   Observable<List<BakerMagazine>> all();
-  Observable<BakerMagazine> firstOrDefault(BakerMagazine defaultValue, Predicate<BakerMagazine> where);
+  Single<BakerMagazine> firstOrDefault(BakerMagazine defaultValue, Predicate<BakerMagazine> where);
   Observable<Boolean> create(BakerMagazine magazine);
   Observable<Boolean> update(BakerMagazine magazine);
   Observable<Boolean> delete(BakerMagazine magazine);
