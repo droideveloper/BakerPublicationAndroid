@@ -34,13 +34,13 @@ import org.fs.util.Objects;
 
   public final static BakerMagazine INVALID_ITEM = new BakerMagazine(null, null, Long.MIN_VALUE, Long.MIN_VALUE, null, null);
 
-  public BakerMagazine() {/*default constructor*/}
+  BakerMagazine() {/*default constructor*/}
 
-  private BakerMagazine(Parcel input) {
+  BakerMagazine(Parcel input) {
     super(input);
   }
 
-  private BakerMagazine(Long id, String localStorage, long localSize, long remoteSize, Date createdAt, Date updatedAt) {
+  BakerMagazine(Long id, String localStorage, long localSize, long remoteSize, Date createdAt, Date updatedAt) {
     this.id = id;
     this.localStorage = localStorage;
     this.localSize = localSize;

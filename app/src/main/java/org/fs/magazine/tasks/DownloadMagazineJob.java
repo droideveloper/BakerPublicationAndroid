@@ -160,7 +160,7 @@ public final class DownloadMagazineJob extends Job {
   /**
    * Range Header Values
    */
-  private static class RangePart {
+  static class RangePart {
 
     final long start;
     final long end;

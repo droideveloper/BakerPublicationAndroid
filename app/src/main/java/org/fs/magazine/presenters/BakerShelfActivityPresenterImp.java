@@ -41,12 +41,12 @@ import org.fs.util.ObservableList;
 public class BakerShelfActivityPresenterImp extends AbstractPresenter<BakerShelfActivityView>
     implements BakerShelfActivityPresenter {
 
-  private final ObservableList<Book> data;
-  private final BakerFile file;
-  private final BakerService service;
-  private final JobManager jobManager;
+  final ObservableList<Book> data;
+  final BakerFile file;
+  final BakerService service;
+  final JobManager jobManager;
 
-  private Disposable register;
+  Disposable register;
 
   public BakerShelfActivityPresenterImp(BakerShelfActivityView view, ObservableList<Book> data,
       BakerFile file, BakerService service, JobManager jobManager) {

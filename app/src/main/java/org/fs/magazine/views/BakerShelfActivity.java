@@ -22,7 +22,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ProgressBar;
 import javax.inject.Inject;
@@ -47,14 +46,12 @@ public class BakerShelfActivity extends AbstractActivity<BakerShelfActivityPrese
 
   private ProgressBar   progress;
   private RecyclerView  recycler;
-  private Toolbar       toolbar;
 
   @Override public void onCreate(Bundle restoreState) {
     super.onCreate(restoreState);
     setContentView(view_baker_shelf_activity);
     // load views
     progress = ViewUtility.findViewById(this, R.id.progress);
-    toolbar = ViewUtility.findViewById(this, R.id.toolbar);
     recycler = ViewUtility.findViewById(this, R.id.recycler);
     // inject it this way
     DaggerActivityCompatComponent.builder()

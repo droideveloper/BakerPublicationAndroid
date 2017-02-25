@@ -36,6 +36,7 @@ import java8.util.stream.StreamSupport;
 import org.fs.common.AbstractManager;
 import org.fs.common.BusManager;
 import org.fs.common.ThreadManager;
+import org.fs.exception.AndroidException;
 import org.fs.magazine.BuildConfig;
 import org.fs.magazine.entities.events.PercentageChange;
 import org.fs.publication.entities.Book;
@@ -163,7 +164,10 @@ public final class BakerFileImp extends AbstractManager implements BakerFile {
   private void unzip(File directory, File zip) {
     try {
       if (!directory.exists()) {
-        directory.mkdirs();
+        boolean created = directory.mkdirs();
+        if (!created) {
+          throw new AndroidException("can not create " + directory.getPath());
+        }
       }
       ZipInputStream stream = new ZipInputStream(new FileInputStream(zip));
       try {
@@ -177,7 +181,10 @@ public final class BakerFileImp extends AbstractManager implements BakerFile {
             if (entry.isDirectory()) {
               // directory created
               if (!file.exists()) {
-                file.mkdirs();
+                boolean created = file.mkdirs();
+                if (!created) {
+                  throw new AndroidException("can not create " + file.getPath());
+                }
               }
             } else {
               // file created
